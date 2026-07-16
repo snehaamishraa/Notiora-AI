@@ -21,7 +21,7 @@ export default async function handler(req: Request, res: Response) {
 
   // Allow only POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   const { url } = req.body?.input || {};
@@ -124,7 +124,7 @@ export default async function handler(req: Request, res: Response) {
         contentToSummarize = `Video Description: ${videoDescription.trim()}`;
       } else {
         return res.status(400).json({ 
-          error: 'Transcripts are disabled or blocked by YouTube, and no video description could be retrieved. Please try another video.' 
+          message: 'Transcripts are disabled or blocked by YouTube, and no video description could be retrieved. Please try another video.' 
         });
       }
     }
@@ -136,18 +136,18 @@ export default async function handler(req: Request, res: Response) {
     const rawKey = process.env.OPENROUTER_API_KEY || '';
     const openRouterKey = rawKey.replace(/^['"]|['"]$/g, '').trim();
     if (!openRouterKey) {
-      return res.status(500).json({ error: 'OpenRouter API key is not configured in Nhost secrets.' });
+      return res.status(500).json({ message: 'OpenRouter API key is not configured in Nhost secrets.' });
     }
 
     let summary = '';
     let successfulModel = '';
     const FREE_MODELS = [
-      'meta-llama/llama-3.1-8b-instruct:free',
-      'google/gemma-4-31b-it:free',
+      'nvidia/nemotron-nano-9b-v2:free',
+      'openai/gpt-oss-20b:free',
+      'cohere/north-mini-code:free',
       'google/gemma-4-26b-a4b-it:free',
-      'meta-llama/llama-3.3-70b-instruct:free',
       'meta-llama/llama-3.2-3b-instruct:free',
-      'nousresearch/hermes-3-llama-3.1-405b:free'
+      'meta-llama/llama-3.3-70b-instruct:free'
     ];
 
     let lastError = '';
@@ -315,6 +315,9 @@ function getFriendlyModelName(modelSlug: string): string {
   if (modelSlug.includes('llama-3.3')) return 'Meta Llama 3.3';
   if (modelSlug.includes('llama-3.2')) return 'Meta Llama 3.2';
   if (modelSlug.includes('gemma-4')) return 'Google Gemma 4';
+  if (modelSlug.includes('nemotron')) return 'Nvidia Nemotron';
+  if (modelSlug.includes('gpt-oss')) return 'GPT OSS';
+  if (modelSlug.includes('cohere')) return 'Cohere North Mini';
   if (modelSlug.includes('qwen3-coder')) return 'Qwen 3 Coder';
   if (modelSlug.includes('gemma-2')) return 'Google Gemma 2';
   if (modelSlug.includes('mistral')) return 'Mistral 7B';
